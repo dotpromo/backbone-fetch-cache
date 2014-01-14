@@ -123,7 +123,7 @@
         Backbone.fetchCache._cache[key] = {
           expires: expires,
           value: attrs,
-          model: instance instanceof Backbone.Model
+          isModel: instance instanceof Backbone.Model
         };
     }
 
@@ -139,7 +139,7 @@
             Backbone.fetchCache.clearItem(modelKey, Backbone.fetchCache._cache[key].expiry);
         });
     }
-    if (_.isUndefined(expiry) || Backbone.fetchCache._cache[key].expiry == expiry) { 
+    if (_.isUndefined(expiry) || (Backbone.fetchCache._cache[key] && Backbone.fetchCache._cache[key].expiry == expiry)) { 
         delete Backbone.fetchCache._cache[key];
     }
     Backbone.fetchCache.setLocalStorage();
