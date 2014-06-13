@@ -109,22 +109,22 @@
     }
 
     if (Backbone.fetchCache.cacheModels && instance instanceof Backbone.Collection) {
-        var keys = [];
-        instance.each(_.bind(function(model) {
-            Backbone.fetchCache.setCache(model, opts, model.attributes);
-            keys.push(Backbone.fetchCache.getCacheKey(model, this.opts));
-        }, this));
-        Backbone.fetchCache._cache[key] = {
-          expires: expires,
-          value: keys,
-          isModel: false
-        };
+      var keys = [];
+      instance.each(_.bind(function(model) {
+        Backbone.fetchCache.setCache(model, opts, model.attributes);
+        keys.push(Backbone.fetchCache.getCacheKey(model, this.opts));
+      }, this));
+      Backbone.fetchCache._cache[key] = {
+        expires: expires,
+        value: keys,
+        isModel: false
+      };
     } else {
-        Backbone.fetchCache._cache[key] = {
-          expires: expires,
-          value: attrs,
-          isModel: instance instanceof Backbone.Model
-        };
+      Backbone.fetchCache._cache[key] = {
+        expires: expires,
+        value: attrs,
+        isModel: instance instanceof Backbone.Model
+      };
     }
 
     Backbone.fetchCache.setLocalStorage();
@@ -132,15 +132,16 @@
 
   function clearItem(key, expiry) {
     if (_.isFunction(key)) { key = key(); }
-    // If collection models are stored, remove those with same expiry 
+    // If collection models are stored, remove those with same expiry
     // as collection (other may have been updated individually)
-    if (Backbone.fetchCache.cacheModels && ! Backbone.fetchCache._cache[key].isModel) {
-        _.each(Backbone.fetchCache._cache[key].value, function(modelKey) {
-            Backbone.fetchCache.clearItem(modelKey, Backbone.fetchCache._cache[key].expiry);
-        });
+    var cachedKey = Backbone.fetchCache._cache[key];
+    if (Backbone.fetchCache.cacheModels && cachedKey && !cachedKey.isModel) {
+      _.each(cachedKey.value, function(modelKey) {
+        Backbone.fetchCache.clearItem(modelKey, cachedKey.expiry);
+      });
     }
-    if (_.isUndefined(expiry) || (Backbone.fetchCache._cache[key] && Backbone.fetchCache._cache[key].expiry == expiry)) { 
-        delete Backbone.fetchCache._cache[key];
+    if (_.isUndefined(expiry) || (cachedKey && cachedKey.expiry === expiry)) {
+      delete Backbone.fetchCache._cache[key];
     }
     Backbone.fetchCache.setLocalStorage();
   }
@@ -256,7 +257,7 @@
 
     // If this model has a collection, also try to delete the cache for that
     // even if the collection holds no attributes, the fact that they
-    // may have changed mean the result of collection parameters may not contain 
+    // may have changed mean the result of collection parameters may not contain
     // the model anymore, hence the need to poll the server
     if (!!collection) {
       keys.push(Backbone.fetchCache.getCacheKey(collection));
@@ -303,10 +304,10 @@
       expired = data.expires;
       expired = expired && data.expires < (new Date()).getTime();
       if (Backbone.fetchCache.cacheModels) {
-          attributes = [];
-          _.each(data.value, function(model_cache_key) {
-            attributes.push(Backbone.fetchCache._cache[model_cache_key].value);
-          });
+        attributes = [];
+        _.each(data.value, function(model_cache_key) {
+          attributes.push(Backbone.fetchCache._cache[model_cache_key].value);
+        });
       } else {
         attributes = data.value;
       }
