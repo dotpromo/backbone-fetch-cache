@@ -84,7 +84,7 @@
     // Need url to use as cache key so return if we can't get it
     if(!url) { return; }
 
-    if(opts && opts.data) {
+    if(opts && opts.data && opts.cacheData) {
       return url + "?" + $.param(opts.data);
     }
     return url;
@@ -306,7 +306,9 @@
       if (Backbone.fetchCache.cacheModels) {
         attributes = [];
         _.each(data.value, function(model_cache_key) {
-          attributes.push(Backbone.fetchCache._cache[model_cache_key].value);
+          if (Backbone.fetchCache._cache[model_cache_key]) {
+            attributes.push(Backbone.fetchCache._cache[model_cache_key].value);
+          }
         });
       } else {
         attributes = data.value;
